@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlueHive Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:    #F0DDB5;
+  --cream-lt: #F6E8C8;
+  --cream-dk: #E4D0A4;
+  --cocoa:    #3D1D0A;
+  --cocoa-2:  #5A2C12;
+  --burnt:    #B84A1A;
+  --orange:   #E07420;
+  --saffron:  #EFB01E;
+  --teal:     #1F5C6B;
+  --teal-lt:  #3B8A9A;
+  --ink:      #2A1408;
+  --ink-50:   rgba(42,20,8,0.5);
+  --ink-30:   rgba(42,20,8,0.3);
+  --ink-15:   rgba(42,20,8,0.15);
+  --ink-08:   rgba(42,20,8,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TEXTURE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(61,29,10,0.03) 0.5px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(61,29,10,0.03) 0.5px, transparent 1px);
+  background-size: 3px 3px, 4px 4px;
+  mix-blend-mode: multiply;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--cocoa);
+  border-bottom: 3px solid var(--teal);
+  transition: box-shadow 0.3s;
+}
+
+.nav.scrolled {
+  box-shadow: 0 4px 24px rgba(42,20,8,0.3);
+}
+
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-brand-text {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 15px;
+  color: var(--teal-lt);
+  text-transform: lowercase;
+  letter-spacing: -0.01em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-links a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cream-dk);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: rgba(59,138,154,0.15);
+  color: var(--teal-lt);
+}
+
+/* ── MOBILE NAV ── */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--cream);
+  margin: 5px 0;
+  transition: all 0.3s;
+}
+
+@media (max-width: 640px) {
+  .nav-toggle { display: block; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: var(--cocoa);
+    flex-direction: column;
+    padding: 12px 24px 20px;
+    border-bottom: 3px solid var(--teal);
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { padding: 10px 0; border-radius: 0; }
+}
+
+/* ── SECTIONS ── */
+section {
+  min-height: 100vh;
+  padding: 80px 24px 60px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── HOME ── */
+#home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--cocoa);
+  position: relative;
+  overflow: hidden;
+}
+
+/* sunburst bg */
+.home-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(800px, 140vw);
+  height: min(800px, 140vw);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.home-content {
+  position: relative;
+  z-index: 2;
+}
+
+.home-bee {
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.home-kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+
+.home-headline {
+  font-family: 'Alfa Slab One', serif;
+  font-size: clamp(42px, 10vw, 80px);
+  color: var(--cream);
+  text-transform: lowercase;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.home-headline .teal { color: var(--teal-lt); }
+
+.home-deck {
+  font-size: clamp(16px, 2.5vw, 19px);
+  color: rgba(240,221,181,0.7);
+  line-height: 1.65;
+  max-width: 560px;
+  margin: 0 auto 32px;
+  font-weight: 300;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.65s forwards;
+}
+
+.home-cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+
+.btn {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 30px;
+  transition: all 0.25s;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary {
+  background: var(--saffron);
+  color: var(--cocoa);
+}
+.btn-primary:hover {
+  background: var(--orange);
+  color: var(--cream);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--cream-dk);
+  border: 1.5px solid rgba(240,221,181,0.25);
+}
+.btn-ghost:hover {
+  border-color: var(--saffron);
+  color: var(--saffron);
+}
+
+/* ── ABOUT ── */
+#about {
+  background: var(--cream);
+  border-top: 3px double var(--teal);
+}
+
+.section-eyebrow {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Alfa Slab One', serif;
+  font-size: clamp(28px, 6vw, 44px);
+  color: var(--cocoa);
+  text-transform: lowercase;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 700px) {
+  .about-grid {
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+  }
+}
+
+.about-prose {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.about-prose p + p {
+  margin-top: 18px;
+}
+
+.about-prose strong {
+  font-weight: 600;
+  color: var(--cocoa);
+}
+
+.about-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--cream-lt);
+  border: 1px solid var(--ink-15);
+  border-left: 3px solid var(--teal);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+.about-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.about-card-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.about-card-text a {
+  color: var(--teal);
+  text-decoration: none;
+  border-bottom: 1px solid var(--teal-lt);
+}
+
+.about-card-text a:hover {
+  color: var(--burnt);
+  border-color: var(--burnt);
+}
+
+/* ── INITIATIVES ── */
+#initiatives {
+  background: var(--cocoa);
+  position: relative;
+}
+
+#initiatives .section-eyebrow { color: var(--saffron); }
+#initiatives .section-title { color: var(--cream); }
+
+.initiative-intro {
+  font-size: 16px;
+  color: rgba(240,221,181,0.65);
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+/* Bee Cyber Safe feature card */
+.initiative-card {
+  background: rgba(240,221,181,0.06);
+  border: 1px solid rgba(240,221,181,0.12);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.initiative-hero {
+  background: var(--teal);
+  padding: 36px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* decorative circles */
+.initiative-hero::before {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 160px;
+  height: 160px;
+  background: var(--cream);
+  opacity: 0.08;
+  border-radius: 50%;
+}
+
+.initiative-hero::after {
+  content: '';
+  position: absolute;
+  right: 30px;
+  bottom: -30px;
+  width: 80px;
+  height: 80px;
+  background: var(--teal-lt);
+  opacity: 0.25;
+  border-radius: 50%;
+}
+
+.initiative-bee {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.initiative-hero-text {
+  position: relative;
+  z-index: 2;
+}
+
+.initiative-name {
+  font-family: 'Alfa Slab One', serif;
+  font-size: clamp(24px, 5vw, 36px);
+  color: var(--cream);
+  text-transform: lowercase;
+  line-height: 1.0;
+  margin-bottom: 6px;
+}
+
+.initiative-sub {
+  font-size: 14px;
+  color: rgba(240,221,181,0.7);
+  font-weight: 400;
+}
+
+.initiative-body {
+  padding: 28px 32px;
+}
+
+.initiative-desc {
+  font-size: 15px;
+  color: rgba(240,221,181,0.75);
+  line-height: 1.7;
+  margin-bottom: 28px;
+  font-weight: 300;
+}
+
+.initiative-desc strong {
+  color: var(--cream);
+  font-weight: 600;
+}
+
+/* Session list */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.session-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(240,221,181,0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(240,221,181,0.08);
+}
+
+.session-num {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 18px;
+  color: var(--cocoa);
+  background: var(--saffron);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.session-item:nth-child(2) .session-num { background: var(--teal-lt); color: var(--cream); }
+.session-item:nth-child(3) .session-num { background: var(--orange); color: var(--cream); }
+
+.session-info {}
+
+.session-name {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 17px;
+  color: var(--cream);
+  text-transform: lowercase;
+  line-height: 1.15;
+  margin-bottom: 3px;
+}
+
+.session-topics {
+  font-size: 13px;
+  color: rgba(240,221,181,0.5);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.session-date {
+  font-size: 12px;
+  color: var(--saffron);
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+/* Venue block */
+.venue-strip {
+  background: rgba(240,221,181,0.08);
+  border-top: 1px solid rgba(240,221,181,0.1);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.venue-info {}
+
+.venue-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 4px;
+}
+
+.venue-name {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 18px;
+  color: var(--cream);
+  text-transform: lowercase;
+}
+
+.venue-addr {
+  font-size: 13px;
+  color: rgba(240,221,181,0.5);
+  margin-top: 2px;
+}
+
+.venue-cta {
+  text-align: right;
+}
+
+.venue-cta-big {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 22px;
+  color: var(--saffron);
+  text-transform: lowercase;
+  font-style: italic;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.venue-cta-sub {
+  font-size: 11px;
+  color: rgba(240,221,181,0.5);
+  font-weight: 500;
+}
+
+/* Resources within initiative */
+.resources-section {
+  padding: 24px 32px 28px;
+  border-top: 1px solid rgba(240,221,181,0.08);
+}
+
+.resources-title {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 16px;
+  color: var(--cream);
+  text-transform: lowercase;
+  margin-bottom: 14px;
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(240,221,181,0.04);
+  border: 1px solid rgba(240,221,181,0.08);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.resource-link:hover {
+  background: rgba(240,221,181,0.08);
+  border-color: rgba(240,221,181,0.15);
+}
+
+.resource-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.resource-text {
+  font-size: 13px;
+  color: var(--cream);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.resource-text small {
+  display: block;
+  font-size: 11px;
+  color: rgba(240,221,181,0.45);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--ink);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 13px;
+  color: rgba(240,221,181,0.35);
+  line-height: 1.6;
+}
+
+.footer-text a {
+  color: rgba(240,221,181,0.5);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(240,221,181,0.15);
+}
+
+.footer-text a:hover {
+  color: var(--saffron);
+  border-color: var(--saffron);
+}
+
+.footer-brand {
+  font-family: 'Alfa Slab One', serif;
+  font-size: 14px;
+  color: rgba(240,221,181,0.2);
+  text-transform: lowercase;
+  margin-top: 12px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll-triggered reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#home" class="nav-brand">
+      <svg width="24" height="28" viewBox="0 0 48 54" fill="none">
+        <ellipse cx="24" cy="32" rx="12" ry="16" fill="#F0DDB5"/>
+        <rect x="13" y="27" width="22" height="4.5" rx="1.5" fill="#3D1D0A" opacity="0.35"/>
+        <rect x="13" y="35" width="22" height="4.5" rx="1.5" fill="#3D1D0A" opacity="0.35"/>
+        <circle cx="24" cy="15" r="7" fill="#F0DDB5"/>
+        <line x1="20" y1="9" x2="15" y2="2" stroke="#F0DDB5" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="14" cy="1.5" r="2.2" fill="#3B8A9A"/>
+        <line x1="28" y1="9" x2="33" y2="2" stroke="#F0DDB5" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="34" cy="1.5" r="2.2" fill="#3B8A9A"/>
+        <ellipse cx="9.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.6" transform="rotate(-22 9.5 21)"/>
+        <ellipse cx="38.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.6" transform="rotate(22 38.5 21)"/>
+        <circle cx="21.5" cy="15" r="2" fill="#3D1D0A" opacity="0.4"/>
+        <circle cx="26.5" cy="15" r="2" fill="#3D1D0A" opacity="0.4"/>
+        <path d="M24 48 L21 53 L24 51.5 L27 53 Z" fill="#3B8A9A"/>
+      </svg>
+      <span class="nav-brand-text">bluehive security</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#initiatives">Initiatives</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<section id="home">
+  <div class="home-content">
+    <!-- Bee mark -->
+    <div class="home-bee">
+      <svg width="72" height="82" viewBox="0 0 48 54" fill="none">
+        <ellipse cx="24" cy="32" rx="12" ry="16" fill="#F0DDB5" opacity="0.9"/>
+        <rect x="13" y="27" width="22" height="4.5" rx="1.5" fill="#3D1D0A" opacity="0.3"/>
+        <rect x="13" y="35" width="22" height="4.5" rx="1.5" fill="#3D1D0A" opacity="0.3"/>
+        <circle cx="24" cy="15" r="7" fill="#F0DDB5" opacity="0.9"/>
+        <line x1="20" y1="9" x2="15" y2="2" stroke="#F0DDB5" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="14" cy="1.5" r="2.2" fill="#EFB01E"/>
+        <line x1="28" y1="9" x2="33" y2="2" stroke="#F0DDB5" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="34" cy="1.5" r="2.2" fill="#EFB01E"/>
+        <ellipse cx="9.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.5" transform="rotate(-22 9.5 21)"/>
+        <ellipse cx="38.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.5" transform="rotate(22 38.5 21)"/>
+        <circle cx="21.5" cy="15" r="2" fill="#3D1D0A" opacity="0.35"/>
+        <circle cx="26.5" cy="15" r="2" fill="#3D1D0A" opacity="0.35"/>
+        <path d="M24 48 L21 53 L24 51.5 L27 53 Z" fill="#EFB01E"/>
+      </svg>
+    </div>
+
+    <h1 class="home-headline">bluehive<br><span class="teal">security.</span></h1>
+    <p class="home-deck">Security work done properly. Aimed at people who need it, explained by people who actually do it.</p>
+    <div class="home-cta-row">
+      <a href="#initiatives" class="btn btn-primary">Current initiatives</a>
+      <a href="#about" class="btn btn-ghost">About BlueHive</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-eyebrow">About</p>
+      <h2 class="section-title">security that<br><span style="color:var(--teal);">makes sense.</span></h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-prose reveal">
+        <p>Most cybersecurity guidance assumes you either already understand the threat, or you don't care. There's not much middle ground. That's a gap.</p>
+        <p>BlueHive exists to close it. We do community work — free education, practical advice, that sort of thing. Written and run by people who work in security professionally and genuinely think the gap shouldn't exist.</p>
+        <p>Based in Brentford. No corporate backing. Just work we think is worth doing.</p>
+      </div>
+
+      <div class="about-sidebar reveal">
+        <div class="about-card">
+          <p class="about-card-label">How we work</p>
+          <p class="about-card-text">If someone walks out of a session feeling confident and less confused, we did our job. If they feel stupid or talked down to, we didn't.</p>
+        </div>
+        <div class="about-card">
+          <p class="about-card-label">Get in touch</p>
+          <p class="about-card-text"><a href="https://linkedin.com" target="_blank">Connect on LinkedIn</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INITIATIVES ═══ -->
+<section id="initiatives">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-eyebrow">Initiatives</p>
+      <h2 class="section-title">current programmes.</h2>
+      <p class="initiative-intro">What we're working on right now.</p>
+    </div>
+
+    <div class="initiative-card reveal">
+      <!-- Hero strip -->
+      <div class="initiative-hero">
+        <div class="initiative-bee">
+          <svg width="56" height="64" viewBox="0 0 48 54" fill="none">
+            <ellipse cx="24" cy="32" rx="12" ry="16" fill="#3D1D0A"/>
+            <rect x="13" y="27" width="22" height="4.5" rx="1.5" fill="#EFB01E"/>
+            <rect x="13" y="35" width="22" height="4.5" rx="1.5" fill="#EFB01E"/>
+            <circle cx="24" cy="15" r="7" fill="#3D1D0A"/>
+            <line x1="20" y1="9" x2="15" y2="2" stroke="#3D1D0A" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="14" cy="1.5" r="2.2" fill="#E07420"/>
+            <line x1="28" y1="9" x2="33" y2="2" stroke="#3D1D0A" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="34" cy="1.5" r="2.2" fill="#E07420"/>
+            <ellipse cx="9.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.9" transform="rotate(-22 9.5 21)"/>
+            <ellipse cx="38.5" cy="21" rx="9.5" ry="5.5" fill="#3B8A9A" opacity="0.9" transform="rotate(22 38.5 21)"/>
+            <circle cx="21.5" cy="15" r="2.2" fill="#F0DDB5"/>
+            <circle cx="26.5" cy="15" r="2.2" fill="#F0DDB5"/>
+            <path d="M24 48 L21 53 L24 51.5 L27 53 Z" fill="#E07420"/>
+          </svg>
+        </div>
+        <div class="initiative-hero-text">
+          <p class="initiative-name">bee cyber safe</p>
+          <p class="initiative-sub">Free cybersecurity talks for Brentford residents</p>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="initiative-body">
+        <p class="initiative-desc">Three standalone sessions covering the things that matter most: <strong>passwords, scams, and social media safety.</strong> Designed for older adults, people with low tech confidence, and anyone who just wants practical advice they can use straight away. No booking needed. No cost. No jargon.</p>
+
+        <div class="session-list">
+          <div class="session-item">
+            <div class="session-num">1</div>
+            <div class="session-info">
+              <p class="session-name">password safety &amp; account security</p>
+              <p class="session-topics">Strong passwords · Two-step login · How to check if you've been hacked</p>
+              <p class="session-date">Date &amp; time TBC</p>
+            </div>
+          </div>
+          <div class="session-item">
+            <div class="session-num">2</div>
+            <div class="session-info">
+              <p class="session-name">scams, fraud &amp; deepfakes</p>
+              <p class="session-topics">Spotting fake calls &amp; texts · AI-generated voices · What to do if targeted</p>
+              <p class="session-date">Date &amp; time TBC</p>
+            </div>
+          </div>
+          <div class="session-item">
+            <div class="session-num">3</div>
+            <div class="session-info">
+              <p class="session-name">social media safety</p>
+              <p class="session-topics">Who can see your posts · WhatsApp &amp; Facebook settings · Fake friend requests</p>
+              <p class="session-date">Date &amp; time TBC</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venue -->
+      <div class="venue-strip">
+        <div class="venue-info">
+          <p class="venue-label">Where</p>
+          <p class="venue-name">venue tbc</p>
+          <p class="venue-addr">Brentford · Details to follow</p>
+        </div>
+        <div class="venue-cta">
+          <p class="venue-cta-big">just turn up.</p>
+          <p class="venue-cta-sub">No booking · No cost · All welcome</p>
+        </div>
+      </div>
+
+      <!-- Resources -->
+      <div class="resources-section">
+        <p class="resources-title">useful resources</p>
+        <div class="resource-grid">
+          <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="resource-link">
+            <span class="resource-icon">🔍</span>
+            <span class="resource-text">Have I Been Pwned<small>Check if your email is in a breach</small></span>
+          </a>
+          <a href="https://www.actionfraud.police.uk" target="_blank" rel="noopener" class="resource-link">
+            <span class="resource-icon">🚔</span>
+            <span class="resource-text">Action Fraud<small>0300 123 2040 · Report fraud</small></span>
+          </a>
+          <a href="https://bitwarden.com" target="_blank" rel="noopener" class="resource-link">
+            <span class="resource-icon">🔒</span>
+            <span class="resource-text">Bitwarden<small>Free password manager</small></span>
+          </a>
+          <a href="https://www.getsafeonline.org" target="_blank" rel="noopener" class="resource-link">
+            <span class="resource-icon">🛡️</span>
+            <span class="resource-text">Get Safe Online<small>Plain-language safety guides</small></span>
+          </a>
+          <a href="tel:08006781602" class="resource-link">
+            <span class="resource-icon">📞</span>
+            <span class="resource-text">Age UK Digital Helpline<small>0800 678 1602 · Free</small></span>
+          </a>
+          <a href="https://www.ncsc.gov.uk/cyberaware" target="_blank" rel="noopener" class="resource-link">
+            <span class="resource-icon">🏛️</span>
+            <span class="resource-text">NCSC Cyber Aware<small>UK government guidance</small></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <p class="footer-text">BlueHive Security · Brentford, London · <a href="https://linkedin.com" target="_blank">LinkedIn</a></p>
+  <p class="footer-brand">bluehive security</p>
+</footer>
+
+<!-- ═══ JS ═══ -->
+<script>
+  // Nav scroll shadow
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Mobile toggle
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => {
+    links.classList.toggle('open');
+  });
+
+  // Close mobile nav on link click
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => links.classList.remove('open'));
+  });
+
+  // Active nav state
+  const sections = document.querySelectorAll('section');
+  const navAnchors = links.querySelectorAll('a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navAnchors.forEach(a => a.classList.remove('active'));
+        const active = links.querySelector(`a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.35 });
+  sections.forEach(s => observer.observe(s));
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => revealObserver.observe(r));
+</script>
+</body>
+</html>
