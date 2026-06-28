@@ -1,0 +1,457 @@
+/* ============================================================
+   BeeCyberSafe — community site
+   Plain CSS, no build. Visual system from the agreed flyer.
+   ============================================================ */
+
+:root {
+  /* surfaces */
+  --paper:      #ECE3D0;   /* main background */
+  --card:       #FBF6EA;   /* lighter card surface */
+  --card-edge:  #E2D6BA;   /* hairline borders on cream */
+
+  /* ink + text (all body text uses --ink for AA contrast on cream) */
+  --ink:        #2E3B33;   /* primary text + bee outline (~9:1 on paper) */
+  --ink-soft:   #51594B;   /* secondary small labels only (~5:1 on paper) */
+
+  /* accents */
+  --terracotta: #B5572F;   /* primary accent + CTA */
+  --bee-body:   #D98A5A;   /* warm bee body / soft accent */
+
+  /* canal greens + towpath */
+  --green-1:    #6E8F88;
+  --green-2:    #5E7E76;
+  --green-3:    #5C7E78;
+  --green-4:    #4E6E68;
+  --sand:       #C8A06F;
+
+  /* bee mark — recoloured per context via these vars */
+  --bee-outline: var(--ink);
+  --bee-fill:    var(--bee-body);
+  --bee-wing:    var(--green-2);
+
+  /* type */
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans:  'Public Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  --maxw: 1080px;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 84px; /* clears the sticky header on anchor jumps */
+}
+
+body {
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- shared bits ---------------------------------------------------- */
+
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section { padding: 72px 0; }
+
+.eyebrow {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  margin-bottom: 16px;
+}
+
+h1, h2, h3 { font-family: var(--serif); color: var(--ink); }
+
+.section-title {
+  font-weight: 600;
+  font-size: clamp(28px, 5vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -.015em;
+  margin-bottom: 14px;
+}
+
+.lede {
+  font-size: clamp(17px, 2.2vw, 19px);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+
+a { color: var(--terracotta); }
+
+/* focus visibility — keyboard users */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--terracotta);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* skip link */
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  z-index: 2000;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: top .2s;
+}
+.skip-link:focus { top: 12px; }
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  padding: 14px 26px;
+  border-radius: 10px;
+  min-height: 48px;
+  transition: transform .2s ease, background .2s ease;
+}
+.btn-primary { background: var(--terracotta); color: var(--card); }
+.btn-primary:hover { background: #9d4626; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--card-edge);
+}
+.btn-ghost:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+/* the inherited bee mark — fills driven by CSS vars so it works on
+   both light and dark backgrounds (see .on-dark override) */
+.bee .ink  { fill: var(--bee-outline); }
+.bee .strk { stroke: var(--bee-outline); }
+.bee .body { fill: var(--bee-fill); stroke: var(--bee-outline); }
+.bee .wing { fill: var(--bee-wing); }
+
+/* ---- header / nav --------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(236, 227, 208, 0.92);
+  backdrop-filter: saturate(120%) blur(8px);
+  border-bottom: 1px solid var(--card-edge);
+}
+.nav-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.brand-text {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+.brand-text b { color: var(--terracotta); font-weight: 800; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-links a {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+.nav-links a:hover,
+.nav-links a.active { color: var(--terracotta); background: rgba(181, 87, 47, .08); }
+
+/* the parent-brand link, deliberately set apart */
+.nav-parent {
+  margin-left: 6px;
+  border: 1.5px solid var(--card-edge);
+  color: var(--ink-soft) !important;
+}
+.nav-parent:hover { color: var(--terracotta) !important; border-color: var(--terracotta); background: transparent !important; }
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  min-width: 44px;
+  min-height: 44px;
+}
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: var(--ink);
+  border-radius: 2px;
+  margin: 5px auto;
+  transition: all .3s;
+}
+
+@media (max-width: 760px) {
+  .nav-toggle { display: block; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 68px;
+    left: 0; right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--card-edge);
+    padding: 12px 24px 20px;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { padding: 14px 12px; font-size: 17px; }
+  .nav-parent { margin-left: 0; margin-top: 8px; text-align: center; }
+}
+
+/* ---- hero ----------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  padding: 64px 0 0;
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.hero h1 {
+  font-weight: 900;
+  font-size: clamp(40px, 7.5vw, 66px);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  max-width: 14ch;
+}
+.hero h1 em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--terracotta);
+}
+.hero .lede { margin-top: 22px; color: var(--ink); }
+
+.hero-cta {
+  margin-top: 30px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.turn-up-note {
+  font-size: 15px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+/* quiet canal band beneath the hero */
+.canal-band {
+  display: block;
+  width: 100%;
+  height: clamp(120px, 18vw, 180px);
+  margin-top: 40px;
+}
+.canal-band svg { display: block; width: 100%; height: 100%; }
+
+/* ---- sessions ------------------------------------------------------- */
+
+#sessions { background: var(--card); }
+.sessions-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.sessions-note { color: var(--ink-soft); font-weight: 600; font-size: 15px; }
+
+.session-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 820px) {
+  .session-cards { grid-template-columns: repeat(3, 1fr); }
+}
+.session-card {
+  background: var(--paper);
+  border: 1px solid var(--card-edge);
+  border-radius: var(--radius);
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.session-num {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--green-3);
+  margin-bottom: 12px;
+}
+.session-card:nth-child(2) .session-num { color: var(--green-4); }
+.session-card:nth-child(3) .session-num { color: var(--terracotta); }
+.session-card h3 {
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.18;
+  margin-bottom: 8px;
+}
+.session-card p { font-size: 16px; line-height: 1.55; }
+.session-when {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--card-edge);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* ---- who runs it ---------------------------------------------------- */
+
+#who .who-card {
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-left: 4px solid var(--green-3);
+  border-radius: var(--radius);
+  padding: 32px 30px;
+  max-width: 760px;
+}
+#who .who-card p { font-size: clamp(18px, 2.4vw, 21px); line-height: 1.6; }
+#who .who-card p + p { margin-top: 16px; font-size: 17px; color: var(--ink); }
+
+/* ---- practical ------------------------------------------------------ */
+
+#practical { background: var(--ink); color: var(--paper); }
+#practical .eyebrow { color: var(--bee-body); }
+#practical .section-title { color: var(--paper); }
+#practical .lede { color: rgba(236, 227, 208, .85); }
+.practical-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 30px;
+}
+@media (min-width: 720px) { .practical-grid { grid-template-columns: repeat(3, 1fr); } }
+.practical-card {
+  background: rgba(236, 227, 208, .07);
+  border: 1px solid rgba(236, 227, 208, .14);
+  border-radius: var(--radius);
+  padding: 22px 22px;
+}
+.practical-card h3 {
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+.practical-card p { font-size: 16px; color: rgba(236, 227, 208, .82); line-height: 1.55; }
+.practical-card strong { color: var(--bee-body); font-weight: 700; }
+
+/* ---- help & helplines ----------------------------------------------- */
+
+.help-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 28px;
+}
+@media (min-width: 600px) { .help-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 920px) { .help-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.help-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color .2s ease, transform .2s ease;
+}
+.help-card:hover { border-color: var(--terracotta); transform: translateY(-2px); }
+.help-card .help-name { font-weight: 700; font-size: 17px; color: var(--ink); }
+.help-card .help-desc { font-size: 15px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+.help-card .help-num { font-weight: 700; color: var(--terracotta); }
+
+/* ---- footer --------------------------------------------------------- */
+
+.site-footer {
+  background: var(--ink);
+  color: rgba(236, 227, 208, .8);
+  padding: 48px 0 40px;
+}
+.footer-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.footer-top .brand-text { color: var(--paper); }
+.footer-top .brand-text b { color: var(--bee-body); }
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: center;
+  font-size: 15px;
+}
+.site-footer a { color: var(--paper); text-decoration: none; border-bottom: 1px solid rgba(236,227,208,.3); }
+.site-footer a:hover { color: var(--bee-body); border-color: var(--bee-body); }
+.footer-meta {
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(236, 227, 208, .55);
+  line-height: 1.6;
+}
+
+/* context where the bee sits on a dark surface */
+.on-dark { --bee-outline: var(--paper); --bee-wing: var(--green-1); }
+
+/* ---- scroll reveal (motion-safe only) ------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+}
